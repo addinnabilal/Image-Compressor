@@ -3,39 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-def get_u(A,v, sigma):
-    u = []
-    for i in range(len(v)):
-        ui = (1/sigma[i])*np.dot(A, v[:,i])
-        u.append(ui)
-        
-    return np.transpose(np.array(u))
-
-
-def get_v(A, u, sigma):
-    v = []
-    for i in range(len(u)):
-        vi = (1/sigma[i])*np.dot(A.transpose(), u[:,i])
-        v.append(vi)
-
-    return np.transpose(np.array(v))
-
-def svd(A):
-    m = np.shape(A)[0]
-    n = np.shape(A)[1]
-    if(m>n):
-        AtA = np.dot(np.transpose(A),A)
-        sigma,v = eig(AtA)
-        u=get_u(A,v,sigma)
-    else:
-        AAt = np.dot(A,np.transpose(A))
-        sigma,u = eig(AAt)
-        v=get_v(A,u,sigma)
-    return sigma,u,v
-
-def eig(A):
-    return 0
-
 def compress_image(r,g,b,k):
     sigr,ur,vr = svd(r)
     sigg,ug,vg = svd(g)
@@ -59,6 +26,39 @@ def arrange(img,rr,rg,rb):
                     result[i,j,k] = 255
     result = result.astype(np.uint8)
     return result
+
+def eigen(A):
+    return 0
+    
+def process_u(A,v, sig):
+    u = []
+    for i in range(len(v)):
+        row = (1/sig[i])*np.dot(A, v[:,i])
+        u.append(row)
+        
+    return np.transpose(np.array(u))
+
+
+def process_v(A, u, sig):
+    v = []
+    for i in range(len(u)):
+        row = (1/sig[i])*np.dot(A.transpose(), u[:,i])
+        v.append(row)
+
+    return np.transpose(np.array(v))
+
+def svd(A):
+    m = np.shape(A)[0]
+    n = np.shape(A)[1]
+    if(m>n):
+        AtA = np.dot(np.transpose(A),A)
+        sigma,v = eigen(AtA)
+        u=process_u(A,v,sigma)
+    else:
+        AAt = np.dot(A,np.transpose(A))
+        sigma,u = eigen(AAt)
+        v=process_v(A,u,sigma)
+    return sigma,u,v
 
 img = Image.open(r'C:\Users\airat\OneDrive\Pictures\wp\521122.jpg')
 img = np.asarray(img)
