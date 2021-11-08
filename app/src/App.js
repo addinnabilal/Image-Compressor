@@ -3,7 +3,7 @@ import Main from './components/FileUpload';
 
 const App = () => (
   <div>
-    <h1>File Upload</h1>
+    <h1>Image Compression</h1>
     <Main />
   </div>
 );
