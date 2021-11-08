@@ -3,6 +3,7 @@ from numpy.linalg import norm
 import matplotlib.pyplot as plt
 from PIL import Image
 from time import time
+import os
 
 def svd1d(A, epsilon=1e-8):
     m = A.shape[0]
@@ -94,8 +95,9 @@ def arrangegs(img,r):
     return result
 
 start = time()
-
-img = Image.open(r'C:\Users\airat\OneDrive\Pictures\wp\💛 (@goddessoftearss).jpg')
+image_name = input("Masukkan nama image: ")
+path = 'assets\\' + image_name
+img = Image.open(path)
 img = np.asarray(img)
 if(len(img.shape) > 2):
     rr,rg,rb = compress_image(img,50)
@@ -103,6 +105,8 @@ if(len(img.shape) > 2):
 else:
     r = compress_image(img,50)
     result = arrangegs(img,r)
-plt.imshow(result)
-plt.show()
+image = Image.fromarray(result)
+filename = input("Masukkan nama file: ")
+path = 'assets\\' + filename
+image.save(path, 'JPEG')
 print(f'Time taken to run: {time() - start} seconds')
