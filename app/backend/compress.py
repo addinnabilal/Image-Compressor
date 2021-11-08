@@ -8,6 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 UPLOAD_FOLDER = 'storage/uploaded/'
+DOWNLOAD_FOLDER = 'storage/compressed/'
 
 def svd1d(A, epsilon=1e-8):
     m = A.shape[0]
@@ -50,13 +51,13 @@ def svd(A,k, epsilon=1e-8):
     return us.T,sigs, vs
 
 def compress_image(img,k):
-    print("processing...")
+    logger.info("processing...")
     if(len(img.shape) > 2): #rgb
         r = img[:,:,0]
         g = img[:,:,1]
         b = img[:,:,2]
         ur,sigr,vr = svd(r,k)
-        print("compressing...")
+        logger.info("compressing...")
         ug,sigg,vg = svd(g,k)
         ub,sigb,vb = svd(b,k)
         rr = np.dot(ur[:,:k],np.dot(np.diag(sigr[:k]), vr[:k,:]))
@@ -64,13 +65,13 @@ def compress_image(img,k):
         rb = np.dot(ub[:,:k],np.dot(np.diag(sigb[:k]), vb[:k,:]))
         return rr,rg,rb
     else: #greyscale
-        print("compressing...")
+        logger.info("compressing...")
         u,s,v = svd(img,k)
         r = np.dot(u[:,:k],np.dot(np.diag(s[:k]), v[:k,:]))
         return r
 
 def arrangeRGB(img,rr,rg,rb):
-    print("arranging...")
+    logger.info("arranging...")
     result = np.zeros(img.shape)
     result[:,:,0] = rr
     result[:,:,1] = rg
@@ -86,7 +87,7 @@ def arrangeRGB(img,rr,rg,rb):
     return result
 
 def arrangegs(img,r):
-    print("arranging...")
+    logger.info("arranging...")
     result = np.zeros(img.shape)
     result[:,:,0] = r
     for i in range (np.shape(result)[0]):
@@ -101,6 +102,7 @@ def arrangegs(img,r):
 
 
 def compress_function(k, image_name):
+    # TODO : Support other filetypes
     pth = os.path.abspath(os.getcwd())
     logger.info(pth)
     start = time()
@@ -114,6 +116,6 @@ def compress_function(k, image_name):
         r = compress_image(img,k)
         result = arrangegs(img,r)
     image = Image.fromarray(result)
-    path = UPLOAD_FOLDER + "compressed_" + image_name
+    path = DOWNLOAD_FOLDER + "compressed_" + image_name
     image.save(path, 'JPEG')
-    print(f'Time taken to run: {time() - start} seconds')
+    logger.info(f'Time taken to run: {time() - start} seconds')

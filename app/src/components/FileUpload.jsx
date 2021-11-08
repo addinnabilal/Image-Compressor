@@ -17,17 +17,21 @@ class Main extends React.Component {
     const data = new FormData();
     data.append('file', this.uploadInput.files[0]);
     data.append('k', this.k.value);
-    console.log(this.k.value)
+    // console.log(this.uploadInput.files[0].name);
 
     fetch('http://localhost:5000/upload', {
       method: 'POST',
       body: data,
     }).then((response) => {
-      response.json().then((body) => {
-        console.log(body);
-        this.setState({ imageURL: `http://localhost:5000/${body.file}` });
-      });
+      console.log("Upload success.")
     });
+    
+    fetch('http://localhost:5000/download/' + this.uploadInput.files[0].name,{
+      method: 'GET',
+      
+    }).then((res) => {
+      console.log("Get download url success.")
+      this.setState({imageURL:res.url})});
   }
 
   render() {

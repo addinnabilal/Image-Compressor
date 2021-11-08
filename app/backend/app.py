@@ -1,6 +1,6 @@
 import os
 import compress
-from flask import Flask, flash, request, redirect, url_for, session
+from flask import Flask, flash, request, redirect, url_for, session, send_file
 import logging
 import flask_cors
 from werkzeug.utils import secure_filename
@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 UPLOAD_FOLDER = 'storage'
+DOWNLOAD_FOLDER = 'storage/compressed/'
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -28,13 +29,19 @@ def handleFileUpload():
     logger.info("Handling file upload..")
     file = request.files['file']
     k = int(request.form['k'])
-    logger.info(k)
     filename = secure_filename(file.filename)
     destination="/".join([target, filename])
     file.save(destination)
     session['uploadFilePath']=destination
-    response = compress.compress_function(k, file.filename)
-    return response
+    compress.compress_function(k, file.filename)
+    # TODO : Make proper response
+    return
+
+@app.route('/download/<filename>', methods=['GET'])
+def download(filename):
+    logger.info("Handling download..")
+    compressed_path = DOWNLOAD_FOLDER + "compressed_" + filename
+    return send_file(compressed_path) 
 
 if __name__ == "__main__":
     import logging.config
