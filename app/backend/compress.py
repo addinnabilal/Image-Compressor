@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from time import time
 import os
+import logging
+logger = logging.getLogger(__name__)
+
+UPLOAD_FOLDER = 'storage/uploaded/'
 
 def svd1d(A, epsilon=1e-8):
     m = A.shape[0]
@@ -94,19 +98,22 @@ def arrangegs(img,r):
     result = result.astype(np.uint8)
     return result
 
-start = time()
-image_name = input("Masukkan nama image: ")
-path = 'assets\\' + image_name
-img = Image.open(path)
-img = np.asarray(img)
-if(len(img.shape) > 2):
-    rr,rg,rb = compress_image(img,50)
-    result = arrangeRGB(img,rr,rg,rb)
-else:
-    r = compress_image(img,50)
-    result = arrangegs(img,r)
-image = Image.fromarray(result)
-filename = input("Masukkan nama file: ")
-path = 'assets\\' + filename
-image.save(path, 'JPEG')
-print(f'Time taken to run: {time() - start} seconds')
+
+
+def compress_function(k, image_name):
+    pth = os.path.abspath(os.getcwd())
+    logger.info(pth)
+    start = time()
+    path = UPLOAD_FOLDER + image_name
+    img = Image.open(path)
+    img = np.asarray(img)
+    if(len(img.shape) > 2):
+        rr,rg,rb = compress_image(img,k)
+        result = arrangeRGB(img,rr,rg,rb)
+    else:
+        r = compress_image(img,k)
+        result = arrangegs(img,r)
+    image = Image.fromarray(result)
+    path = UPLOAD_FOLDER + "compressed_" + image_name
+    image.save(path, 'JPEG')
+    print(f'Time taken to run: {time() - start} seconds')
