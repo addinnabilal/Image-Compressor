@@ -30,12 +30,13 @@ def svd(A,k, epsilon=1e-8):
         A1 = A.copy()
         for sig, u, v in SVD[:i]:
             A1 -= sig * np.outer(u, v)
-        v = svd1d(A1)
         if m > n:
+            v = svd1d(A1)
             u_unnorm = np.dot(A, v)
             sigma = norm(u_unnorm)
             u = u_unnorm / sigma
         else:
+            u = svd1d(A1)
             v_unnorm = np.dot(A.T, u)
             sigma = norm(v_unnorm)
             v = v_unnorm / sigma
@@ -43,16 +44,28 @@ def svd(A,k, epsilon=1e-8):
     sigs, us, vs = [np.array(x) for x in zip(*SVD)]
     return us.T,sigs, vs
 
-def compress_image(r,g,b,k):
-    ur,sigr,vr = svd(r,k)
-    ug,sigg,vg = svd(g,k)
-    ub,sigb,vb = svd(b,k)
-    rr = np.dot(ur[:,:k],np.dot(np.diag(sigr[:k]), vr[:k,:]))
-    rg = np.dot(ug[:,:k],np.dot(np.diag(sigg[:k]), vg[:k,:]))
-    rb = np.dot(ub[:,:k],np.dot(np.diag(sigb[:k]), vb[:k,:]))
-    return rr,rg,rb
+def compress_image(img,k):
+    print("processing...")
+    if(len(img.shape) > 2): #rgb
+        r = img[:,:,0]
+        g = img[:,:,1]
+        b = img[:,:,2]
+        ur,sigr,vr = svd(r,k)
+        print("compressing...")
+        ug,sigg,vg = svd(g,k)
+        ub,sigb,vb = svd(b,k)
+        rr = np.dot(ur[:,:k],np.dot(np.diag(sigr[:k]), vr[:k,:]))
+        rg = np.dot(ug[:,:k],np.dot(np.diag(sigg[:k]), vg[:k,:]))
+        rb = np.dot(ub[:,:k],np.dot(np.diag(sigb[:k]), vb[:k,:]))
+        return rr,rg,rb
+    else: #greyscale
+        print("compressing...")
+        u,s,v = svd(img,k)
+        r = np.dot(u[:,:k],np.dot(np.diag(s[:k]), v[:k,:]))
+        return r
 
-def arrange(img,rr,rg,rb):
+def arrangeRGB(img,rr,rg,rb):
+    print("arranging...")
     result = np.zeros(img.shape)
     result[:,:,0] = rr
     result[:,:,1] = rg
@@ -67,15 +80,29 @@ def arrange(img,rr,rg,rb):
     result = result.astype(np.uint8)
     return result
 
+def arrangegs(img,r):
+    print("arranging...")
+    result = np.zeros(img.shape)
+    result[:,:,0] = r
+    for i in range (np.shape(result)[0]):
+        for j in range (np.shape(result)[1]):
+            if result[i,j] < 0:
+                result[i,j] = abs(result[i,j])
+            if result[i,j] > 255:
+                result[i,j] = 255
+    result = result.astype(np.uint8)
+    return result
+
 start = time()
 
-img = Image.open(r'C:\Users\airat\OneDrive\Pictures\wp\960ce1b5-ea97-4838-92b9-0feaef724f82.jpg')
+img = Image.open(r'C:\Users\airat\OneDrive\Pictures\wp\💛 (@goddessoftearss).jpg')
 img = np.asarray(img)
-r = img[:,:,0]
-g = img[:,:,1]
-b = img[:,:,2]
-rr,rg,rb = compress_image(r,g,b,50)
-result = arrange(img,rr,rg,rb)
+if(len(img.shape) > 2):
+    rr,rg,rb = compress_image(img,50)
+    result = arrangeRGB(img,rr,rg,rb)
+else:
+    r = compress_image(img,50)
+    result = arrangegs(img,r)
 plt.imshow(result)
 plt.show()
 print(f'Time taken to run: {time() - start} seconds')
