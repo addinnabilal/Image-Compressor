@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@800&family=Nunito:wght@900&family=Rubik:wght@600&family=Sora:wght@100;800&display=swap');body{
+  font-family: 'Sora', sans-serif !important;
+  background-color: #1F1D36 !important;
+}
 .App {
   text-align: center;
 }
@@ -36,3 +40,11 @@
     transform: rotate(360deg);
   }
 }
+
+.contDrop {
+  background-color: #3F3351 !important;
+  border-style: dashed;
+  border-color: #864879;
+  padding:20px;
+}
+
