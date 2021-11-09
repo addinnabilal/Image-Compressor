@@ -1,22 +1,53 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, InputGroup, Navbar, NavbarBrand, Input, Card, CardBody,  CardTitle, CardImg, Row, Col, InputGroupText, Container } from 'reactstrap';
 import Dropzone from 'react-dropzone';
 import { BiDownload, BiWrench } from "react-icons/bi";
 function App() {
-  const [image, setImage]=useState(null)
-  const [compressRate, setCompressRate]=useState(null)
+  const [image, setImage]=useState(null);
+  const [compressRate, setCompressRate]=useState(null);
+  // const handleDrop = acceptedFiles => {
+  //   // console.log(acceptedFiles)
+  //   setImage(URL.createObjectURL(acceptedFiles[0]));
+  // };
+  //const handleChange = function(e){
+  //  console.log("k = " + e.target.value);
+  //  setCompressRate(e.target.value);
+  //} GAS ini gua pindahin ke func compress ya sekalian
 
-  const handleDrop = acceptedFiles => {
-    setImage(URL.createObjectURL(acceptedFiles[0]));
-  };
+  const handleUploadImage = function(ev){
+    // ev.preventDefault();
+    setImage(URL.createObjectURL(ev[0]));
+    const data = new FormData();
+    // console.log(compressRate);
+    // console.log(ev)
+    data.append('file', image);
+    data.append('k', compressRate);
+
+    fetch('http://localhost:5000/upload', {
+      method: 'POST',
+      body: data,
+    }).then((response) => {
+      console.log(response)
+    });}
+    
   var compRate;
-  function compressFunc(){
+  const handleCompress = function(){
+    console.log(image);
+    fetch('http://localhost:5000/download/' + image.name, {
+    method: 'GET',
+  }).then((res) => {
+    console.log("Get download url success.");
+    setImage(res.url);
+    // this.setState({imageURL:res.url})});
+
+  })
     compRate=document.getElementById("compRateInput").value;
     document.getElementById("printCompRate").innerHTML = compRate;
-  }
-
+    setCompressRate(compRate);
+};
+   
   return (
     <div className="App">
       <header>
@@ -31,7 +62,7 @@ function App() {
       </header>
       <body>
         <div style={{margin:'100px', marginTop:'10px'}}>
-          <Dropzone accept='image/*' onDrop={handleDrop} className="contDrop">
+          <Dropzone accept='image/*' onDrop={handleUploadImage} className="contDrop">
             {({ getRootProps, getInputProps }) => (
               <div {...getRootProps({ className: "dropzone" })}>
                 <input {...getInputProps()} />
@@ -44,7 +75,7 @@ function App() {
             <Input type="number" id="compRateInput"/>
             <InputGroupText>%</InputGroupText>
           </InputGroup>
-          <Button onClick={compressFunc} size='lg' style={{margin:'20px'}}><BiWrench/>  Compress</Button>
+          <Button onClick={handleCompress} size='lg' style={{margin:'20px'}}><BiWrench/>  Compress</Button>
           <Row>
             <Col>
               <Card>

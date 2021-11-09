@@ -26,19 +26,21 @@ def handleFileUpload():
     target=os.path.join(UPLOAD_FOLDER,'uploaded')
     if not os.path.isdir(target):
         os.mkdir(target)
-    logger.info("Handling file upload..")
     file = request.files['file']
     k = int(request.form['k'])
     filename = secure_filename(file.filename)
     destination="/".join([target, filename])
     file.save(destination)
+    logger.info("Handling file upload..")
     session['uploadFilePath']=destination
     compress.compress_function(k, file.filename)
+    response = "Upload success!"
     # TODO : Make proper response
-    return
+    return response
 
 @app.route('/download/<filename>', methods=['GET'])
 def download(filename):
+    # TODO : Delete after done
     logger.info("Handling download..")
     compressed_path = DOWNLOAD_FOLDER + "compressed_" + filename
     return send_file(compressed_path) 

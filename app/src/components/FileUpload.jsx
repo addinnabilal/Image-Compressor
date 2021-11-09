@@ -23,7 +23,7 @@ class Main extends React.Component {
       method: 'POST',
       body: data,
     }).then((response) => {
-      console.log("Upload success.")
+      console.log(response)
     });
     
     fetch('http://localhost:5000/download/' + this.uploadInput.files[0].name,{
