@@ -41,10 +41,16 @@
   }
 }
 
-.contDrop {
+.dropzone {
   background-color: #3F3351 !important;
   border-style: dashed;
   border-color: #864879;
   padding:20px;
+}
+
+.imgCont{
+  border-style: dashed;
+  border-color: #3F3351;
+  height: 350px;
 }
 
