@@ -58,9 +58,12 @@ def svd(A, k, epsilon=1e-8):
     if m>=n:
         A = np.dot(A.T,A)
         val = n
+        val2 = m
     else:
         A = np.dot(A,A.T)
         val = m
+        val2 = n
+    temp_vec = np.zeros(shape=(val2,k))
     now = np.random.rand(val, k)
     now , r = np.linalg.qr(now)
     for i in range(250):
@@ -71,14 +74,24 @@ def svd(A, k, epsilon=1e-8):
         if error < epsilon:
             break
     idx = np.argsort(np.diag(R))[::-1]
-    sing=np.sqrt(np.diag(R)[idx])
+    sing=np.diag(R)[idx]
     now = now[:,idx]
     if m<n:
         u=now
-        v=np.dot(np.linalg.inv(np.diag(sing)),np.dot(u.T,X))
+        for i in range(k):
+            u1 = u[:,i]
+            v_unnorm = np.dot(X.T,u1)
+            sing[i] = norm(v_unnorm)
+            temp_vec[:,i] = v_unnorm/sing[i]
+        v = temp_vec.T
     else:
         v=now.T
-        u=np.dot(X,np.dot(v.T,np.linalg.inv(np.diag(sing))))
+        for i in range(k):
+            v1 = v[i,:]
+            u_unnorm = np.dot(X,v1.T)
+            sing[i] = norm(u_unnorm)
+            temp_vec[:,i] = u_unnorm/sing[i]
+        u = temp_vec
     return u, sing, v
 
 def compress_image(img,k):
