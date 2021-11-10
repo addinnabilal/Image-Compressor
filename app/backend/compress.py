@@ -1,7 +1,9 @@
 import numpy as np
-from numpy.linalg import norm
 import matplotlib.pyplot as plt
 from PIL import Image
+import math
+from numpy.linalg import norm
+from math import sqrt
 from time import time
 import os
 import logging
@@ -10,47 +12,7 @@ logger = logging.getLogger(__name__)
 UPLOAD_FOLDER = 'storage/uploaded/'
 DOWNLOAD_FOLDER = 'storage/compressed/'
 
-def svd1d(A, epsilon=1e-8):
-    m = A.shape[0]
-    n = A.shape[1]
-    x = [0 for i in range (min(m,n))]
-    x[0] = 1
-    now = x
-    if m > n:
-        mtrx = np.dot(A.T, A)
-    else:
-        mtrx = np.dot(A, A.T)
-    while True:
-        temp = now
-        now = np.dot(mtrx, temp)
-        now /= norm(now)
-        if abs(np.dot(now, temp)) > 1 - epsilon:
-            return now
-
-def svd2(A,k, epsilon=1e-8):
-    A = np.array(A, dtype=np.float64)
-    m = A.shape[0]
-    n = A.shape[1]
-    SVD = []
-    for i in range(k):
-        A1 = A.copy()
-        for sing, u, v in SVD[:i]:
-            A1 -= sing * np.outer(u, v)
-        if m > n:
-            v = svd1d(A1)
-            u_unnorm = np.dot(A, v)
-            sigma = norm(u_unnorm)
-            u = u_unnorm / sigma
-        else:
-            u = svd1d(A1)
-            v_unnorm = np.dot(A.T, u)
-            sigma = norm(v_unnorm)
-            v = v_unnorm / sigma
-        SVD.append((sigma, u, v))
-    sing, us, vs = [np.array(x) for x in zip(*SVD)]
-    return us.T,sing, vs
-
-def svd(A, k, epsilon=1e-8):
+def svd(A, k, epsilon=1e-3):
     A = np.array(A,dtype=np.float64)
     m = A.shape[0]
     n = A.shape[1]
@@ -63,35 +25,22 @@ def svd(A, k, epsilon=1e-8):
         A = np.dot(A,A.T)
         val = m
         val2 = n
-    temp_vec = np.zeros(shape=(val2,k))
     now = np.random.rand(val, k)
     now , r = np.linalg.qr(now)
-    for i in range(250):
+    for i in range(10):
         temp = now
         Z = np.dot(A,now)
         now, R = np.linalg.qr(Z)
         error = ((now-temp) ** 2).sum()
         if error < epsilon:
             break
-    idx = np.argsort(np.diag(R))[::-1]
-    sing=np.diag(R)[idx]
-    now = now[:,idx]
+    sing=np.sqrt(np.abs(np.diag(R)))
     if m<n:
         u=now
-        for i in range(k):
-            u1 = u[:,i]
-            v_unnorm = np.dot(X.T,u1)
-            sing[i] = norm(v_unnorm)
-            temp_vec[:,i] = v_unnorm/sing[i]
-        v = temp_vec.T
+        v=np.dot(np.linalg.inv(np.diag(sing)),np.dot(u.T,X))
     else:
         v=now.T
-        for i in range(k):
-            v1 = v[i,:]
-            u_unnorm = np.dot(X,v1.T)
-            sing[i] = norm(u_unnorm)
-            temp_vec[:,i] = u_unnorm/sing[i]
-        u = temp_vec
+        u=np.dot(X,np.dot(v.T,np.linalg.inv(np.diag(sing))))
     return u, sing, v
 
 def compress_image(img,k):
@@ -154,6 +103,8 @@ def compress_function(k, image_name):
     if(len(img.shape) > 2):
         rr,rg,rb = compress_image(img,k)
         result = arrangeRGB(img,rr,rg,rb)
+        if(img.shape[2] == 4):
+            result[:,:,3] = img[:,:,3]
     else:
         r = compress_image(img,k)
         result = arrangegs(img,r)
