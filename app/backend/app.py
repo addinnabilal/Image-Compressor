@@ -4,6 +4,7 @@ from flask import Flask, flash, request, redirect, url_for, session, send_file
 import logging
 import flask_cors
 from werkzeug.utils import secure_filename
+import requests
 
 
 
@@ -27,13 +28,14 @@ def handleFileUpload():
     if not os.path.isdir(target):
         os.mkdir(target)
     file = request.files['file']
-    k = int(request.form['k'])
     filename = secure_filename(file.filename)
     destination="/".join([target, filename])
     file.save(destination)
     logger.info("Handling file upload..")
     session['uploadFilePath']=destination
-    compress.compress_function(k, file.filename)
+    # compress.compress_function(k, file.filename)
+    k = int(request.form['k'])
+    time = compress.compress_function(k, filename)
     response = "Upload success!"
     # TODO : Make proper response
     return response
@@ -42,8 +44,15 @@ def handleFileUpload():
 def download(filename):
     # TODO : Delete after done
     logger.info("Handling download..")
+    
     compressed_path = DOWNLOAD_FOLDER + "compressed_" + filename
-    return send_file(compressed_path) 
+    logger.info(compressed_path)
+    url = 'http://localhost:5000/download/' + filename
+    logger.info(url)
+    # file = {'file': open(compressed_path, 'rb')}
+    # r = requests.post(url, files=file)
+    # logger.info("test")
+    return send_file(compressed_path)
 
 if __name__ == "__main__":
     import logging.config
