@@ -37,31 +37,42 @@ def svd(A, k, epsilon=1e-3):
     sing=np.sqrt(np.abs(np.diag(R)))
     if m<n:
         u=now
-        v=np.dot(np.linalg.inv(np.diag(sing)),np.dot(u.T,X))
+        try:
+            v=np.dot(np.linalg.inv(np.diag(sing)),np.dot(u.T,X))
+        except np.linalg.LinAlgError as err:
+            if 'Singular matrix' in str(err):
+                return X
     else:
         v=now.T
-        u=np.dot(X,np.dot(v.T,np.linalg.inv(np.diag(sing))))
+        try:
+            u=np.dot(X,np.dot(v.T,np.linalg.inv(np.diag(sing))))
+        except np.linalg.LinAlgError as err:
+            if 'Singular matrix' in str(err):
+                return X  
     return u, sing, v
 
 def compress_image(img,k):
     logger.info("processing...")
-    if(len(img.shape) > 2): #rgb
-        r = img[:,:,0]
-        g = img[:,:,1]
-        b = img[:,:,2]
+    r = img[:,:,0]
+    g = img[:,:,1]
+    b = img[:,:,2]
+    try:
         ur,sigr,vr = svd(r,k)
-        logger.info("compressing...")
-        ug,sigg,vg = svd(g,k)
-        ub,sigb,vb = svd(b,k)
         rr = np.dot(ur[:,:k],np.dot(np.diag(sigr[:k]), vr[:k,:]))
+    except ValueError:
+        rr = r
+    logger.info("compressing...")
+    try:
+        ug,sigg,vg = svd(g,k)
         rg = np.dot(ug[:,:k],np.dot(np.diag(sigg[:k]), vg[:k,:]))
+    except ValueError:
+        rg = g
+    try:
+        ub,sigb,vb = svd(b,k)
         rb = np.dot(ub[:,:k],np.dot(np.diag(sigb[:k]), vb[:k,:]))
-        return rr,rg,rb
-    else: #greyscale
-        logger.info("compressing...")
-        u,s,v = svd(img,k)
-        r = np.dot(u[:,:k],np.dot(np.diag(s[:k]), v[:k,:]))
-        return r
+    except ValueError:
+        rb = b       
+    return rr,rg,rb
 
 def arrangeRGB(img,rr,rg,rb):
     logger.info("arranging...")
@@ -79,19 +90,14 @@ def arrangeRGB(img,rr,rg,rb):
     result = result.astype(np.uint8)
     return result
 
-def arrangegs(img,r):
-    logger.info("arranging...")
-    result = np.zeros(img.shape)
-    result[:,:,0] = r
-    for i in range (np.shape(result)[0]):
-        for j in range (np.shape(result)[1]):
-            if result[i,j] < 0:
-                result[i,j] = abs(result[i,j])
-            if result[i,j] > 255:
-                result[i,j] = 255
-    result = result.astype(np.uint8)
-    return result
-
+def percentage(img,k):
+    m = img.shape[0]
+    n = img.shape[1]
+    if(m>n):
+        return (k*n)//100
+    else:
+        return (k*m)//100
+        
 def compress_function(k, image_name):
     # TODO : Support other filetypes
     pth = os.path.abspath(os.getcwd())
@@ -100,25 +106,29 @@ def compress_function(k, image_name):
     path = UPLOAD_FOLDER + image_name
     pic = Image.open(path)
     format = pic.format
+    mode = pic.mode
+    if(mode == 'P'):
+        pic = pic.convert('RGBA')
+    elif(mode == 'L'):
+        pic = pic.convert('RGB')
+    elif(mode == 'LA'):
+        pic = pic.convert('RGBA')
     img = np.asarray(pic)
-    if(len(img.shape) > 2):
-        rr,rg,rb = compress_image(img,k)
-        result = arrangeRGB(img,rr,rg,rb)
-        if(img.shape[2] == 4):
-            result[:,:,3] = img[:,:,3]
-        image = Image.fromarray(result)
-        datas = zip(pic.getdata(), image.getdata())
-        diff = sum(abs(i1-i2) for p1,p2 in datas for i1,i2 in zip(p1,p2))
-        size = pic.size[0] * pic.size[1] * 3
-        logger.info("Diff (percentage):", (diff / 255.0 * 100)/size)
-    else:
-        r = compress_image(img,k)
-        result = arrangegs(img,r)
-        image = Image.fromarray(result)
-        datas = zip(pic.getdata(), image.getdata())
-        diff = sum(abs(p1-p2) for p1,p2 in datas)
-        size = pic.size[0] * pic.size[1] * 3
-        logger.info("Diff (percentage):", (diff / 255.0 * 100)/size)
+    rr,rg,rb = compress_image(img,percentage(img,k))
+    result = arrangeRGB(img,rr,rg,rb)
+    if(img.shape[2] == 4):
+        result[:,:,3] = img[:,:,3]
+    image = Image.fromarray(result)
+    datas = zip(pic.getdata(), image.getdata())
+    diff = sum(abs(i1-i2) for p1,p2 in datas for i1,i2 in zip(p1,p2))
+    size = image.size[0] * image.size[1]
+    if(mode == 'P'):
+        image = image.convert('P')
+    elif(mode == 'L'):
+        image = image.convert('L')
+    elif(mode == 'LA'):
+        image = image.convert('LA')
+    logger.info("Diff (percentage):", (diff / 255.0 * 100)/size)
     path = DOWNLOAD_FOLDER + "compressed_" + image_name
     image.save(path, format)
     logger.info(f'Time taken to run: {time() - start} seconds')
