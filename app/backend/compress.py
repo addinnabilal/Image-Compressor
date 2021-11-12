@@ -98,17 +98,27 @@ def compress_function(k, image_name):
     logger.info(pth)
     start = time()
     path = UPLOAD_FOLDER + image_name
-    img = Image.open(path)
-    img = np.asarray(img)
+    pic = Image.open(path)
+    format = pic.format
+    img = np.asarray(pic)
     if(len(img.shape) > 2):
         rr,rg,rb = compress_image(img,k)
         result = arrangeRGB(img,rr,rg,rb)
         if(img.shape[2] == 4):
             result[:,:,3] = img[:,:,3]
+        image = Image.fromarray(result)
+        datas = zip(pic.getdata(), image.getdata())
+        diff = sum(abs(i1-i2) for p1,p2 in datas for i1,i2 in zip(p1,p2))
+        size = pic.size[0] * pic.size[1] * 3
+        logger.info("Diff (percentage):", (diff / 255.0 * 100)/size)
     else:
         r = compress_image(img,k)
         result = arrangegs(img,r)
-    image = Image.fromarray(result)
+        image = Image.fromarray(result)
+        datas = zip(pic.getdata(), image.getdata())
+        diff = sum(abs(p1-p2) for p1,p2 in datas)
+        size = pic.size[0] * pic.size[1] * 3
+        logger.info("Diff (percentage):", (diff / 255.0 * 100)/size)
     path = DOWNLOAD_FOLDER + "compressed_" + image_name
-    image.save(path, 'JPEG')
+    image.save(path, format)
     logger.info(f'Time taken to run: {time() - start} seconds')
