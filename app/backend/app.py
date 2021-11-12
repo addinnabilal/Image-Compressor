@@ -5,9 +5,9 @@ import logging
 import flask_cors
 from werkzeug.utils import secure_filename
 import requests
-import json
+from flask.json import jsonify
 
-
+currentData = {'diff': 0, 'time': 0}
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -39,26 +39,23 @@ def handleFileUpload():
     session['uploadFilePath']=destination
     # compress.compress_function(k, file.filename)
     k = int(request.form['k'])
-    processedData = compress.compress_function(k, filename)
-    logger.info(processedData['diff'])
-    # response = app.response_class(
-    #     response=json.dumps(processedData),
-    #     status=200,
-    #     mimetype='application/json'
-    # )
-    # TODO : Response -> From processedData
-    return processedData
+    global currentData
+    currentData = compress.compress_function(k, filename)
+    logger.info(currentData)
+    return currentData
+
+@app.route('/data')
+def getCurrentData():
+    global currentData
+    logger.info(currentData)
+    return currentData
 
 @app.route('/download/<filename>', methods=['GET'])
 def download(filename):
     # TODO : Delete after done
     logger.info("Handling download..")
-    
     compressed_path = DOWNLOAD_FOLDER + "compressed_" + filename
     url = 'http://localhost:5000/download/' + filename
-    # file = {'file': open(compressed_path, 'rb')}
-    # r = requests.post(url, files=file)
-    # logger.info("test")
     return send_file(compressed_path, as_attachment=True)
 
 if __name__ == "__main__":

@@ -17,6 +17,8 @@ function App() {
    setCompressRate(e.target.value);
   }
 
+  // TODO: Pisahin upload sama compress. Idea: handle drop buat ngeset, upload image di compress.
+
   const handleUploadImage = function(ev){
     // ev.preventDefault();
     setImageName(ev[0].name);
@@ -30,23 +32,27 @@ function App() {
       body: data,
     }).then((response) => {
       response.json();
-    }).then((data) => {
+    }).then(data =>{
       console.log(data)
-    });
+    });  
   }
-    
-  // var compRate;
+
+  // TODO: Gambar belom berubah kalo sama
   const handleCompress = function(){
     fetch('http://localhost:5000/download/' + imageName, {
     method: 'GET',
   }).then((res) => {
     console.log("Get download url success.");
-    console.log(res.url);
     setCompImage(res.url);
   })
-    // compRate=document.getElementById("compRateInput").value;
-    // document.getElementById("printCompRate").innerHTML = compRate;
-    // setCompressRate(compRate);
+
+    fetch('http://localhost:5000/data')
+    .then(res => res.json()).then(data => {
+      console.log(data)
+      document.getElementById("printCompRate").innerText = data.diff;
+      document.getElementById("printCompTime").innerText = data.time;
+    })
+
 };
    
   const downloadFile = () => {
@@ -110,10 +116,10 @@ function App() {
           </Row>
           <div style={{marginTop:'10px'}}>
               <Container>
-                <p style={{color:'white'}}>Image pixel difference percentage <span id="printCompRate"></span>%</p>
+                <p style={{color:'white'}}>Image pixel difference percentage: <span id="printCompRate"></span>%</p>
               </Container>
               <Container>
-                <p style={{color:'white'}}>Image compression time<span id="printCompTime"></span>%</p>
+                <p style={{color:'white'}}>Image compression time: <span id="printCompTime"></span> s</p>
               </Container>
               <Container>
                 <Button onClick={downloadFile}><BiDownload/>  Download</Button>
