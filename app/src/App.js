@@ -13,27 +13,29 @@ function App() {
   //   // console.log(acceptedFiles)
   //   setImage(URL.createObjectURL(acceptedFiles[0]));
   // };
-  //const handleChange = function(e){
-  //  console.log("k = " + e.target.value);
-  //  setCompressRate(e.target.value);
-  //} GAS ini gua pindahin ke func compress ya sekalian
+  const handleChange = function(e){
+   setCompressRate(e.target.value);
+  }
 
   const handleUploadImage = function(ev){
     // ev.preventDefault();
     setImageName(ev[0].name);
     setImage(URL.createObjectURL(ev[0]));
     const data = new FormData();
-    console.log(imageName);
     data.append('file', ev[0]);
     data.append('k', compressRate);
+    console.log(compressRate);
     fetch('http://localhost:5000/upload', {
       method: 'POST',
       body: data,
     }).then((response) => {
-      console.log(response)
-    });}
+      response.json();
+    }).then((data) => {
+      console.log(data)
+    });
+  }
     
-  var compRate;
+  // var compRate;
   const handleCompress = function(){
     fetch('http://localhost:5000/download/' + imageName, {
     method: 'GET',
@@ -42,11 +44,14 @@ function App() {
     console.log(res.url);
     setCompImage(res.url);
   })
-    compRate=document.getElementById("compRateInput").value;
-    document.getElementById("printCompRate").innerHTML = compRate;
-    setCompressRate(compRate);
+    // compRate=document.getElementById("compRateInput").value;
+    // document.getElementById("printCompRate").innerHTML = compRate;
+    // setCompressRate(compRate);
 };
    
+  const downloadFile = () => {
+    window.location.href = compImage;
+  }
   return (
     <div className="App">
       <header>
@@ -71,7 +76,7 @@ function App() {
           </Dropzone>
           <InputGroup size='sm' style={{marginTop:'20px'}}>
             <InputGroupText>Compression Rate</InputGroupText>
-            <Input type="number" id="compRateInput"/>
+            <Input type="number" id="compRateInput" onChange={handleChange}/>
             <InputGroupText>%</InputGroupText>
           </InputGroup>
           <Button onClick={handleCompress} size='lg' style={{margin:'20px'}}><BiWrench/>  Compress</Button>
@@ -111,7 +116,7 @@ function App() {
                 <p style={{color:'white'}}>Image compression time<span id="printCompTime"></span>%</p>
               </Container>
               <Container>
-                <Button><BiDownload/>  Download</Button>
+                <Button onClick={downloadFile}><BiDownload/>  Download</Button>
               </Container>
           </div>
         </div>

@@ -128,7 +128,12 @@ def compress_function(k, image_name):
         image = image.convert('L')
     elif(mode == 'LA'):
         image = image.convert('LA')
-    logger.info("Diff (percentage):", (diff / 255.0 * 100)/size)
+    pixelDiff = (diff / 255.0 * 100)/size
+    logger.info(f"Diff (percentage): {pixelDiff}")
     path = DOWNLOAD_FOLDER + "compressed_" + image_name
     image.save(path, format)
-    logger.info(f'Time taken to run: {time() - start} seconds')
+    timeTaken = time() - start
+    logger.info(f'Time taken to run: {timeTaken} seconds')
+
+    return {'diff': pixelDiff, 'time': timeTaken}
+    
