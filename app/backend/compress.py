@@ -114,23 +114,24 @@ def compress_function(k, image_name):
     elif(mode == 'LA'):
         pic = pic.convert('RGBA')
     img = np.asarray(pic)
+    m = img.shape[0]
+    n = img.shape[1]
     rr,rg,rb = compress_image(img,percentage(img,k))
     result = arrangeRGB(img,rr,rg,rb)
     if(img.shape[2] == 4):
         result[:,:,3] = img[:,:,3]
     image = Image.fromarray(result)
-    datas = zip(pic.getdata(), image.getdata())
-    diff = sum(abs(i1-i2) for p1,p2 in datas for i1,i2 in zip(p1,p2))
-    size = image.size[0] * image.size[1]
     if(mode == 'P'):
         image = image.convert('P')
     elif(mode == 'L'):
         image = image.convert('L')
     elif(mode == 'LA'):
         image = image.convert('LA')
-    pixelDiff = (diff / 255.0 * 100)/size
-    logger.info(f"Diff (percentage): {pixelDiff}")
-    path = DOWNLOAD_FOLDER + "compressed_" + image_name
+    pixelDiff = (m+n+1)*percentage(img,k) / (m*m+n*n+min(m,n)) * 100
+    logger.info(f"Diff (percentage): {100-pixelDiff}")
+    if not os.path.isdir(DOWNLOAD_FOLDER):
+        os.mkdir(DOWNLOAD_FOLDER)
+    path = DOWNLOAD_FOLDER + "compressed" + "_" + str(k) + "_" + image_name
     image.save(path, format)
     timeTaken = time() - start
     logger.info(f'Time taken to run: {timeTaken} seconds')
