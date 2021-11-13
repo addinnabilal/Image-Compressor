@@ -54,3 +54,12 @@
   height: 350px;
 }
 
+p {
+  color:white;
+  font-size: medium;
+}
+
+.nvbrand {
+  line-height: 0 !important;
+  height: 0 !important;
+}
