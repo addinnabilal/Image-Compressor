@@ -119,16 +119,15 @@ def compress_function(k, image_name):
     if(img.shape[2] == 4):
         result[:,:,3] = img[:,:,3]
     image = Image.fromarray(result)
-    datas = zip(pic.getdata(), image.getdata())
-    diff = sum(abs(i1-i2) for p1,p2 in datas for i1,i2 in zip(p1,p2))
-    size = image.size[0] * image.size[1]
     if(mode == 'P'):
         image = image.convert('P')
     elif(mode == 'L'):
         image = image.convert('L')
     elif(mode == 'LA'):
         image = image.convert('LA')
-    pixelDiff = (diff / 255.0 * 100)/size
+    m = image.shape[0]
+    n = image.shape[1]
+    pixelDiff = (m+n+1)*percentage(img,k) / (m*m+n*n+min(m,n)) * 100
     logger.info(f"Diff (percentage): {pixelDiff}")
     path = DOWNLOAD_FOLDER + "compressed_" + image_name
     image.save(path, format)
