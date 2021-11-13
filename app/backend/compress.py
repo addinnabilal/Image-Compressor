@@ -136,5 +136,5 @@ def compress_function(k, image_name):
     timeTaken = time() - start
     logger.info(f'Time taken to run: {timeTaken} seconds')
 
-    return {'diff': pixelDiff, 'time': timeTaken}
+    return {'diff': 100-pixelDiff, 'time': timeTaken}
     
