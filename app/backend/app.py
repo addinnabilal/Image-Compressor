@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask.json import jsonify
 
 currentData = {'diff': 0, 'time': 0}
-currentK = 5
+# currentK = 5
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -48,21 +48,21 @@ def getCurrentData():
     logger.info(currentData)
     return currentData
 
-@app.route('/k', methods=['POST'])
-def setK():
-    global currentK
-    currentK = int(request.form['k'])
-    logger.info(currentK)
-    return "Set K success"
+# @app.route('/k', methods=['POST'])
+# def setK():
+#     global currentK
+#     currentK = int(request.form['k'])
+#     logger.info(currentK)
+#     return "Set K success"
 
-@app.route('/compress/<filename>', methods=['GET'])
-def download(filename):
+@app.route('/compress/<filename>_<k>', methods=['GET'])
+def download(filename, k):
     # TODO : Delete after done
     global currentData
-    currentData = compress.compress_function(currentK, filename)
+    currentData = compress.compress_function(int(k), filename)
     logger.info(currentData)
     logger.info("Handling download..")
-    compressed_path = DOWNLOAD_FOLDER + "compressed" + "_" + str(currentK) + "_" + filename
+    compressed_path = DOWNLOAD_FOLDER + "compressed" + "_" + str(k) + "_" + filename
     return send_file(compressed_path, as_attachment=True)
 
 if __name__ == "__main__":

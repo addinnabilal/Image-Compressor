@@ -8,15 +8,10 @@ function App() {
   const [image, setImage]=useState(null);
   const [imageName, setImageName]=useState(null);
   const [compImage, setCompImage]=useState(null);
+  const [currentK, setCurrentK]=useState(null);
 
   const handleChange = function(e){
-   const data = new FormData();
-   data.append('k', e.target.value)
-
-   fetch('http://localhost:5000/k',{
-     method: 'POST',
-     body: data
-   })
+   setCurrentK(e.target.value)
   }
 
   const handleUploadImage = function(ev){
@@ -40,19 +35,19 @@ function App() {
 
   // TODO: Gambar belom berubah kalo sama
   const handleCompress = function(){
-    fetch('http://localhost:5000/compress/' + imageName, {
+    console.log(currentK)
+    fetch('http://localhost:5000/compress/' + imageName + "_" + currentK, {
     method: 'GET',
   }).then((res) => {
     console.log("Get download url success.");
     setCompImage(res.url);
-  })
-
     fetch('http://localhost:5000/data')
     .then(res => res.json()).then(data => {
       console.log(data)
       document.getElementById("printCompRate").innerText = data.diff;
       document.getElementById("printCompTime").innerText = data.time;
     })
+  })
 
 };
    
