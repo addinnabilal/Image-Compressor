@@ -6,18 +6,18 @@ import Dropzone from 'react-dropzone';
 import { BiDownload, BiWrench } from "react-icons/bi";
 function App() {
   const [image, setImage]=useState(null);
-  const [compressRate, setCompressRate]=useState(null);
   const [imageName, setImageName]=useState(null);
   const [compImage, setCompImage]=useState(null);
-  // const handleDrop = acceptedFiles => {
-  //   // console.log(acceptedFiles)
-  //   setImage(URL.createObjectURL(acceptedFiles[0]));
-  // };
-  const handleChange = function(e){
-   setCompressRate(e.target.value);
-  }
 
-  // TODO: Pisahin upload sama compress. Idea: handle drop buat ngeset, upload image di compress.
+  const handleChange = function(e){
+   const data = new FormData();
+   data.append('k', e.target.value)
+
+   fetch('http://localhost:5000/k',{
+     method: 'POST',
+     body: data
+   })
+  }
 
   const handleUploadImage = function(ev){
     // ev.preventDefault();
@@ -25,21 +25,22 @@ function App() {
     setImage(URL.createObjectURL(ev[0]));
     const data = new FormData();
     data.append('file', ev[0]);
-    data.append('k', compressRate);
-    console.log(compressRate);
     fetch('http://localhost:5000/upload', {
       method: 'POST',
       body: data,
-    }).then((response) => {
-      response.json();
-    }).then(data =>{
-      console.log(data)
-    });  
+    });
+    // .then((response) => {
+    //   response.json();
+    // }).then(data =>{
+    //   // console.log(data)
+    // });  
   }
+  
+
 
   // TODO: Gambar belom berubah kalo sama
   const handleCompress = function(){
-    fetch('http://localhost:5000/download/' + imageName, {
+    fetch('http://localhost:5000/compress/' + imageName, {
     method: 'GET',
   }).then((res) => {
     console.log("Get download url success.");
@@ -58,6 +59,7 @@ function App() {
   const downloadFile = () => {
     window.location.href = compImage;
   }
+
   return (
     <div className="App">
       <head>
@@ -111,7 +113,7 @@ function App() {
                   </CardTitle>
                   <Container className='imgCont'>
                   <CardImg
-                    src={compImage} style={{maxHeight:'100%',objectFit:'contain', alignItems:'center', justifyContent:'content'}}/>
+                    id="compImg" src={compImage} style={{maxHeight:'100%',objectFit:'contain', alignItems:'center', justifyContent:'content'}}/>
                   </Container>
                 </CardBody>
               </Card>

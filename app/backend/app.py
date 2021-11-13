@@ -4,10 +4,10 @@ from flask import Flask, flash, request, redirect, url_for, session, send_file
 import logging
 import flask_cors
 from werkzeug.utils import secure_filename
-import requests
 from flask.json import jsonify
 
 currentData = {'diff': 0, 'time': 0}
+currentK = 5
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,6 +25,8 @@ def hello():
 
 @app.route('/upload', methods=['POST'])
 def handleFileUpload():
+    if not os.path.isdir(UPLOAD_FOLDER):
+        os.mkdir(UPLOAD_FOLDER)
     target=os.path.join(UPLOAD_FOLDER,'uploaded')
     logger.info("Handling file upload..")
     if not os.path.isdir(target):
@@ -37,11 +39,7 @@ def handleFileUpload():
         os.remove(destination)
     file.save(destination)
     session['uploadFilePath']=destination
-    # compress.compress_function(k, file.filename)
-    k = int(request.form['k'])
-    global currentData
-    currentData = compress.compress_function(k, filename)
-    logger.info(currentData)
+    
     return currentData
 
 @app.route('/data')
@@ -50,12 +48,21 @@ def getCurrentData():
     logger.info(currentData)
     return currentData
 
-@app.route('/download/<filename>', methods=['GET'])
+@app.route('/k', methods=['POST'])
+def setK():
+    global currentK
+    currentK = int(request.form['k'])
+    logger.info(currentK)
+    return "Set K success"
+
+@app.route('/compress/<filename>', methods=['GET'])
 def download(filename):
     # TODO : Delete after done
+    global currentData
+    currentData = compress.compress_function(currentK, filename)
+    logger.info(currentData)
     logger.info("Handling download..")
-    compressed_path = DOWNLOAD_FOLDER + "compressed_" + filename
-    url = 'http://localhost:5000/download/' + filename
+    compressed_path = DOWNLOAD_FOLDER + "compressed" + "_" + str(currentK) + "_" + filename
     return send_file(compressed_path, as_attachment=True)
 
 if __name__ == "__main__":
