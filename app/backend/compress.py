@@ -114,6 +114,8 @@ def compress_function(k, image_name):
     elif(mode == 'LA'):
         pic = pic.convert('RGBA')
     img = np.asarray(pic)
+    m = img.shape[0]
+    n = img.shape[1]
     rr,rg,rb = compress_image(img,percentage(img,k))
     result = arrangeRGB(img,rr,rg,rb)
     if(img.shape[2] == 4):
@@ -125,10 +127,8 @@ def compress_function(k, image_name):
         image = image.convert('L')
     elif(mode == 'LA'):
         image = image.convert('LA')
-    m = image.shape[0]
-    n = image.shape[1]
     pixelDiff = (m+n+1)*percentage(img,k) / (m*m+n*n+min(m,n)) * 100
-    logger.info(f"Diff (percentage): {pixelDiff}")
+    logger.info(f"Diff (percentage): {100-pixelDiff}")
     path = DOWNLOAD_FOLDER + "compressed_" + image_name
     image.save(path, format)
     timeTaken = time() - start
