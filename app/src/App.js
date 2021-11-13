@@ -36,7 +36,7 @@ function App() {
   // TODO: Gambar belom berubah kalo sama
   const handleCompress = function(){
     console.log(currentK)
-    fetch('http://localhost:5000/compress/' + imageName + "_" + currentK, {
+    fetch('http://localhost:5000/compress/' + currentK + "_" + imageName, {
     method: 'GET',
   }).then((res) => {
     console.log("Get download url success.");

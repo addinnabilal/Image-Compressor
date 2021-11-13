@@ -55,7 +55,7 @@ def getCurrentData():
 #     logger.info(currentK)
 #     return "Set K success"
 
-@app.route('/compress/<filename>_<k>', methods=['GET'])
+@app.route('/compress/<k>_<filename>', methods=['GET'])
 def download(filename, k):
     # TODO : Delete after done
     global currentData
