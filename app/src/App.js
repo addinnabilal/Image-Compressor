@@ -64,13 +64,13 @@ function App() {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
       </head>
       <header>
-        <Navbar style={{backgroundColor:'#864879'}} dark>
-          <NavbarBrand href="/">
+        <Navbar style={{backgroundColor:'#864879'}} dark >
+          <NavbarBrand href="/" className="nvbrand" style={{fontSize:"medium"}}>
             Image Compressor
           </NavbarBrand>
         </Navbar>
         <div>
-          <h1 style={{color:'#E9A6A6', marginTop:'30px'}}>Compress Your Image Here!</h1>
+          <h1 style={{color:'#E9A6A6', marginTop:'30px', fontSize:"35px"}}>Compress Your Image Here!</h1>
         </div>
       </header>
       <body>
@@ -79,12 +79,12 @@ function App() {
             {({ getRootProps, getInputProps }) => (
               <div {...getRootProps({ className: "dropzone" })}>
                 <input {...getInputProps()} />
-                <p style={{color:'white'}}>Drag and drop files, or click to select files</p>
+                <p>Drag and drop files, or click to select files</p>
               </div>
             )}
           </Dropzone>
-          <InputGroup size='sm' style={{marginTop:'20px'}}>
-            <InputGroupText>Compression Rate</InputGroupText>
+          <InputGroup size="lg" style={{marginTop:'20px'}}>
+            <InputGroupText >Compression Rate</InputGroupText>
             <Input type="number" id="compRateInput" onChange={handleChange}/>
             <InputGroupText>%</InputGroupText>
           </InputGroup>
@@ -93,7 +93,7 @@ function App() {
             <Col>
               <Card>
                 <CardBody>
-                  <CardTitle>
+                  <CardTitle style={{fontSize:"medium"}}>
                     Before
                   </CardTitle>
                   <Container className='imgCont'>
@@ -106,7 +106,7 @@ function App() {
             <Col>
               <Card>
                 <CardBody>
-                  <CardTitle>
+                  <CardTitle style={{fontSize:"medium"}}>
                     After
                   </CardTitle>
                   <Container className='imgCont'>
@@ -119,13 +119,13 @@ function App() {
           </Row>
           <div style={{marginTop:'10px'}}>
               <Container>
-                <p style={{color:'white'}}>Image pixel difference percentage: <span id="printCompRate"></span>%</p>
+                <p>Image pixel difference percentage: <span id="printCompRate"></span>%</p>
               </Container>
               <Container>
-                <p style={{color:'white'}}>Image compression time: <span id="printCompTime"></span> s</p>
+                <p>Image compression time: <span id="printCompTime"></span> s</p>
               </Container>
               <Container>
-                <Button onClick={downloadFile}><BiDownload/>  Download</Button>
+                <Button size="lg" onClick={downloadFile}><BiDownload/>  Download</Button>
               </Container>
           </div>
         </div>
