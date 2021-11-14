@@ -85,7 +85,6 @@ function App() {
           <InputGroup size="lg" style={{marginTop:'20px'}}>
             <InputGroupText >Compression Rate</InputGroupText>
             <Input type="number" id="compRateInput" onChange={handleChange}/>
-            <InputGroupText></InputGroupText>
           </InputGroup>
           <Button onClick={handleCompress} size='lg' style={{margin:'20px'}}><BiWrench/>  Compress</Button>
           <Row>
