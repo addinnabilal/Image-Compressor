@@ -38,7 +38,7 @@ Contributors:
 │   readme.md
 │
 ├───doc
-│       Tugas Besar 2 IF2123 Aljabar Linier dan Geometri.pdf
+│       Algeo02-20016
 │
 ├───src
 │   │   .gitignore
