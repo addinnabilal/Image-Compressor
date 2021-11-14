@@ -9,7 +9,7 @@ function App() {
   const [imageName, setImageName]=useState(null);
   const [compImage, setCompImage]=useState(null);
   const [currentK, setCurrentK]=useState(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   const handleChange = function(e){
    setCurrentK(e.target.value)
   }
@@ -35,18 +35,20 @@ function App() {
 
   // TODO: Gambar belom berubah kalo sama
   const handleCompress = function(){
+    setIsLoading(true);
     console.log(currentK)
     fetch('http://localhost:5000/compress/' + currentK + "_" + imageName, {
     method: 'GET',
   }).then((res) => {
-    console.log("Get download url success.");
-    setCompImage(res.url);
+    console.log("Compress success.")
+    setCompImage('http://localhost:5000/download/' + currentK + "_" + imageName);
     fetch('http://localhost:5000/data')
     .then(res => res.json()).then(data => {
       console.log(data)
       document.getElementById("printCompRate").innerText = data.diff;
       document.getElementById("printCompTime").innerText = data.time;
     })
+    setIsLoading(false);
   })
 
 };
@@ -114,6 +116,13 @@ function App() {
               </Card>
             </Col>
           </Row>
+          {isLoading ? (
+              <div style={{marginTop:'10px'}}>
+              <Container>
+              <p>Loading... Please wait.</p>
+              </Container>
+              </div>
+            ) : 
           <div style={{marginTop:'10px'}}>
               <Container>
                 <p>Image pixel difference percentage: <span id="printCompRate"></span>%</p>
@@ -124,7 +133,7 @@ function App() {
               <Container>
                 <Button size="lg" onClick={downloadFile}><BiDownload/>  Download</Button>
               </Container>
-          </div>
+          </div>}
         </div>
       </body>
     </div>

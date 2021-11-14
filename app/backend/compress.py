@@ -127,7 +127,7 @@ def compress_function(k, image_name):
         image = image.convert('L')
     elif(mode == 'LA'):
         image = image.convert('LA')
-    pixelDiff = (m+n+1)*percentage(img,k) / (m*m+n*n+min(m,n)) * 100
+    pixelDiff = (m+n+1)*k / (m*m+n*n+min(m,n)) * 100
     logger.info(f"Diff (percentage): {100-pixelDiff}")
     if not os.path.isdir(DOWNLOAD_FOLDER):
         os.mkdir(DOWNLOAD_FOLDER)

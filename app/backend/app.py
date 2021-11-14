@@ -56,12 +56,17 @@ def getCurrentData():
 #     return "Set K success"
 
 @app.route('/compress/<k>_<filename>', methods=['GET'])
-def download(filename, k):
+def compressHandler(filename, k):
     # TODO : Delete after done
     global currentData
     currentData = compress.compress_function(int(k), filename)
     logger.info(currentData)
     logger.info("Handling download..")
+    compressed_path = DOWNLOAD_FOLDER + "compressed" + "_" + str(k) + "_" + filename
+    return send_file(compressed_path, as_attachment=True)
+
+@app.route('/download/<k>_<filename>')
+def download(filename, k):
     compressed_path = DOWNLOAD_FOLDER + "compressed" + "_" + str(k) + "_" + filename
     return send_file(compressed_path, as_attachment=True)
 
