@@ -1,4 +1,4 @@
-# Algeo02-20016 - Web-based Image Compression using SVD Algorithm
+# Web-based Image Compressor using SVD Algorithm
 
 <!-- ## Table of Contents
 * [General Info](#general-information)
